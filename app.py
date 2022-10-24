@@ -6,7 +6,7 @@ from time import strftime
 import asyncio
 from pprint import pprint as print
 import pandas as pd
-from lib.polygon_util import polygon_url
+from src.polygon_util import polygon_url
 from dotenv import load_dotenv
 import os
 
@@ -20,8 +20,8 @@ TICKER = "TSLA"
 
 class Bot:
   def contracts(self):
-    from lib.polygon_util import import_options_tickers
-    from lib.models.contracts import Contracts
+    from src.polygon_util import import_options_tickers
+    from src.models.contracts import Contracts
 
     contracts = Contracts()
     for ticker in import_options_tickers(TICKER):
@@ -30,14 +30,14 @@ class Bot:
       t = contracts.update({"ticker": ticker, "underlying": "AAPL"})
 
   def agg(self):
-    from lib.models.contracts import Contracts
-    from lib.models.aggregrates import Aggregates
-    from lib.polygon_util import get_aggregate_bars, COLUMNS
+    from src.models.contracts import Contracts
+    from src.models.aggregrates import Aggregates
+    from src.polygon_util import get_aggregate_bars, COLUMNS
     import pandas as pd
     contracts = Contracts()
     agg = Aggregates()
     import datetime
-    from lib.models.contracts import Contracts
+    from src.models.contracts import Contracts
     # to_date = (datetime.datetime.today() - datetime.timedelta(days=14))
     to_date = datetime.datetime.today()
     from_date = (to_date - datetime.timedelta(days=14))
@@ -65,7 +65,7 @@ class Bot:
           agg.update(row)
 
   def analyze(self):
-    from lib.models.aggregrates import Aggregates
+    from src.models.aggregrates import Aggregates
     import pandas as pd
     lookback = 14
     agg = Aggregates()
