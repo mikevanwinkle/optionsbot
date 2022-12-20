@@ -16,7 +16,8 @@ import os
 # dbhost = 'dbs.politicseq.com'
 load_dotenv()
 
-TICKER = "TSLA"
+TICKER = argv[2] if len(argv) > 2 else "TSLA"
+START = int(argv[3]) if len(argv) > 3 else int(1)
 
 class Bot:
   def contracts(self):
@@ -38,10 +39,10 @@ class Bot:
     agg = Aggregates()
     import datetime
     from src.models.contracts import Contracts
-    # to_date = (datetime.datetime.today() - datetime.timedelta(days=14))
-    to_date = datetime.datetime.today()
-    from_date = (to_date - datetime.timedelta(days=14))
-    # print(f"{from_date.strftime('%D')} => {to_date.strftime('%D')}")
+    to_date = (datetime.datetime.today() - datetime.timedelta(days=START))
+    #to_date = datetime.datetime.today()i
+    from_date = (to_date - datetime.timedelta(days=3))
+    print(f"{from_date.strftime('%D')} => {to_date.strftime('%D')}")
     # to_date = datetime.datetime.today()
     conts =  contracts.getSet(where=f'ticker LIKE "O:{TICKER}2%"', order='asc')
     put_call_ratio = {}
@@ -50,7 +51,7 @@ class Bot:
       import re
       matches = re.match('O:(?P<ticker>[A-Z]{3,4})(?P<date>[0-9]+)(?P<type>[C|P])(?P<dollars>[0-9]{5})(?P<cents>[0-9]{3})', c['ticker'])
       data = get_aggregate_bars(c['ticker'], from_date=from_date, to_date=to_date)
-      # print(matches.group('type'))
+      print(matches.group('type'))
       print(c)
       if 'results' in data.keys():
         for result in data['results']:

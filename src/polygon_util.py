@@ -42,6 +42,7 @@ def import_options_tickers(symbol):
 
 def get_aggregate_bars(contract, from_date: datetime.date, to_date: datetime.date):
   client = polygon.OptionsClient(API_KEY)
+  print(contract, from_date.strftime("%Y-%m-%d"))
   return client.get_aggregate_bars(contract, from_date=from_date.strftime("%Y-%m-%d"), to_date=to_date.strftime("%Y-%m-%d"))
 
 def get_price_history(ticker, from_date: datetime.date, to_date: datetime.date):
