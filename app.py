@@ -23,12 +23,17 @@ class Bot:
   def contracts(self):
     from src.polygon_util import import_options_tickers
     from src.models.contracts import Contracts
+    import re, datetime
 
     contracts = Contracts()
+    for c in contracts.search('underlying', TICKER):
+      matches = re.match('O:(?P<ticker>[A-Z]{3,4})(?P<date>[0-9]+)(?P<type>[C|P])(?P<dollars>[0-9]{5})(?P<cents>[0-9]{3})', c['ticker'])
+      if datetime.datetime.strptime(matches.group("date"), '%y%m%d') < datetime.datetime.today():
+        print(contracts.delete(c['id']))
     for ticker in import_options_tickers(TICKER):
       if not contracts.search("ticker", ticker, one_entry=True):
         print(f"Adding ticker: {ticker}")
-      t = contracts.update({"ticker": ticker, "underlying": "AAPL"})
+      t = contracts.update({"ticker": ticker, "underlying": TICKER})
 
   def agg(self):
     from src.models.contracts import Contracts
@@ -51,7 +56,7 @@ class Bot:
       import re
       matches = re.match('O:(?P<ticker>[A-Z]{3,4})(?P<date>[0-9]+)(?P<type>[C|P])(?P<dollars>[0-9]{5})(?P<cents>[0-9]{3})', c['ticker'])
       data = get_aggregate_bars(c['ticker'], from_date=from_date, to_date=to_date)
-      print(matches.group('type'))
+      if datetime.datetime.strptime(matches.group("date"), '%y%m%d') < datetime.datetime.today(): continue
       print(c)
       if 'results' in data.keys():
         for result in data['results']:

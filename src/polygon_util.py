@@ -1,8 +1,11 @@
+import string
 from numpy import poly
 import requests
 from operator import contains
 import polygon
 import datetime
+
+from sqlalchemy import Float, func
 API_KEY = 'DzfIoW0e36xu0R_B48NxMO4t856DF00V'
 URLS = {
   "contracts": "https://api.polygon.io/v3/reference/options/contracts"
@@ -49,3 +52,27 @@ def get_price_history(ticker, from_date: datetime.date, to_date: datetime.date):
   client = polygon.StocksClient(API_KEY)
   return client.get_aggregate_bars(ticker, from_date=from_date.strftime("%Y-%m-%d"), to_date=to_date.strftime("%Y-%m-%d"))
 
+
+class Adjuster:
+  def __init__(self, ticker: string) -> None:
+    self.ticker = ticker
+    pass
+
+  def adjust(self, date, price) -> Float:
+    return price
+
+class TSLAAjuster(Adjuster):
+  def adjust(self, date, price) -> Float:
+    from datetime import datetime
+    new_price = price
+    split_1 = datetime.strptime("2022-08-24", "%Y-%m-%d")
+    if date <= split_1:
+      new_price = price / 3
+    return new_price
+
+def load_price_adjuster(ticker):
+  adjusters = {
+    "TSLA": TSLAAjuster
+  }
+  adj = adjusters[ticker](ticker)
+  return adj
