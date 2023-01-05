@@ -10,10 +10,6 @@ from src.polygon_util import polygon_url
 from dotenv import load_dotenv
 import os
 
-# dbpass = 'QQd07fn0fn85'
-# dbuser = 'optbotuser'
-# dbdb = 'optionsbot'
-# dbhost = 'dbs.politicseq.com'
 load_dotenv()
 
 TICKER = argv[2] if len(argv) > 2 else "TSLA"
