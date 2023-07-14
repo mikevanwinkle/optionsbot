@@ -20,20 +20,30 @@ TICKER = argv[2] if len(argv) > 2 else "TSLA"
 START = int(argv[3]) if len(argv) > 3 else int(1)
 
 class Bot:
+  def clean(self):
+    from src.polygon_util import import_options_tickers
+    from src.models.contracts import Contracts
+    import re, datetime
+    contracts = Contracts()
+    for c in contracts.search('underlying', TICKER):
+      matches = re.match('O:(?P<ticker>[A-Z]{3,4})(?P<date>[0-9]+)(?P<type>[C|P])(?P<dollars>[0-9]{5})(?P<cents>[0-9]{3})', c['ticker'])
+      if datetime.datetime.strptime(matches.group("date"), '%y%m%d') < datetime.datetime.today():
+        print(contracts.delete(c['id']))
+
   def contracts(self):
     from src.polygon_util import import_options_tickers
     from src.models.contracts import Contracts
     import re, datetime
 
     contracts = Contracts()
-    for c in contracts.search('underlying', TICKER):
-      matches = re.match('O:(?P<ticker>[A-Z]{3,4})(?P<date>[0-9]+)(?P<type>[C|P])(?P<dollars>[0-9]{5})(?P<cents>[0-9]{3})', c['ticker'])
-      if datetime.datetime.strptime(matches.group("date"), '%y%m%d') < datetime.datetime.today():
-        print(contracts.delete(c['id']))
     for ticker in import_options_tickers(TICKER):
       if not contracts.search("ticker", ticker, one_entry=True):
         print(f"Adding ticker: {ticker}")
       t = contracts.update({"ticker": ticker, "underlying": TICKER})
+    for c in contracts.search('underlying', TICKER):
+      matches = re.match('O:(?P<ticker>[A-Z]{3,4})(?P<date>[0-9]+)(?P<type>[C|P])(?P<dollars>[0-9]{5})(?P<cents>[0-9]{3})', c['ticker'])
+      if datetime.datetime.strptime(matches.group("date"), '%y%m%d') < datetime.datetime.today():
+        print(contracts.delete(c['id']))
 
   def agg(self):
     from src.models.contracts import Contracts
@@ -46,7 +56,7 @@ class Bot:
     from src.models.contracts import Contracts
     to_date = (datetime.datetime.today() - datetime.timedelta(days=START))
     #to_date = datetime.datetime.today()i
-    from_date = (to_date - datetime.timedelta(days=3))
+    from_date = (to_date - datetime.timedelta(days=7))
     print(f"{from_date.strftime('%D')} => {to_date.strftime('%D')}")
     # to_date = datetime.datetime.today()
     conts =  contracts.getSet(where=f'ticker LIKE "O:{TICKER}2%"', order='asc')
