@@ -1,12 +1,10 @@
-import string
+import string, requests, polygon, datetime, os
 from numpy import poly
-import requests
 from operator import contains
-import polygon
-import datetime
-
 from sqlalchemy import Float, func
-API_KEY = 'DzfIoW0e36xu0R_B48NxMO4t856DF00V'
+from dotenv import load_dotenv
+load_dotenv()
+
 URLS = {
   "contracts": "https://api.polygon.io/v3/reference/options/contracts"
 }
@@ -24,8 +22,8 @@ COLUMNS = {
 
 def polygon_url(name):
   if "https://" in name:
-    return f"{name}&apiKey={API_KEY}"
-  return f"{URLS[name]}?apiKey={API_KEY}"
+    return f"{name}&apiKey={os.environ.get('apikey')}"
+  return f"{URLS[name]}?apiKey={os.environ.get('apikey')}"
 
 def import_options_tickers(symbol):
   from src.models.contracts import Contracts
@@ -44,12 +42,12 @@ def import_options_tickers(symbol):
     if not data and not data['next_url']: go = False
 
 def get_aggregate_bars(contract, from_date: datetime.date, to_date: datetime.date):
-  client = polygon.OptionsClient(API_KEY)
+  client = polygon.OptionsClient(os.environ.get("apikey"))
   print(contract, from_date.strftime("%Y-%m-%d"))
   return client.get_aggregate_bars(contract, from_date=from_date.strftime("%Y-%m-%d"), to_date=to_date.strftime("%Y-%m-%d"))
 
 def get_price_history(ticker, from_date: datetime.date, to_date: datetime.date):
-  client = polygon.StocksClient(API_KEY)
+  client = polygon.StocksClient(os.environ.get('apikey'))
   return client.get_aggregate_bars(ticker, from_date=from_date.strftime("%Y-%m-%d"), to_date=to_date.strftime("%Y-%m-%d"))
 
 
