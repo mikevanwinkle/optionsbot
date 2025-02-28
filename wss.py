@@ -7,6 +7,7 @@ import json
 import datetime
 import re
 import logging
+import os
 logger = logging.getLogger('websockets')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
@@ -45,7 +46,7 @@ async def on_open(ws: websocket):
         await websocket.wait_closed()
     finally:
         CONNECTIONS.remove(websocket)
-    ws.send(json.dumps({"action":"auth","params":"DzfIoW0e36xu0R_B48NxMO4t856DF00V"}))
+    ws.send(json.dumps({"action":"auth","params": os.getenv("API_KEY")}))
     ws.send(json.dumps({"action":"subscribe", "params":"A.*"}))
 
 def listen():
@@ -61,11 +62,11 @@ def listen():
   rel.dispatch()
 
 async def do_auth(ws):
-  await ws.send(json.dumps({"action":"auth","params":"DzfIoW0e36xu0R_B48NxMO4t856DF00V"}))
+  await ws.send(json.dumps({"action":"auth","params": os.getenv("API_KEY")}))
 
 async def async_listen():
   async with websockets.connect('wss://delayed.polygon.io/options') as ws:
-    await ws.send(json.dumps({"action":"auth","params":"DzfIoW0e36xu0R_B48NxMO4t856DF00V"}))
+    await ws.send(json.dumps({"action":"auth","params": os.getenv("API_KEY")}))
     await ws.send(json.dumps({"action":"subscribe", "params":"A.*"}))
     while True:
       try:
